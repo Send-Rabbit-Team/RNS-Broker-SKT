@@ -23,18 +23,6 @@ public class RabbitmqHeaderXDeath {
         return queue;
     }
 
-    public String getReason() {
-        return reason;
-    }
-
-    public List<String> getRoutingKeys() {
-        return routingKeys;
-    }
-
-    public Date getTime() {
-        return time;
-    }
-
     public void setCount(int count) {
         this.count = count;
     }
