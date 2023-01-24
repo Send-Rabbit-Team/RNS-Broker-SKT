@@ -25,7 +25,7 @@ import static shop.rns.smsbroker.utils.rabbitmq.RabbitUtil.RECEIVE_EXCHANGE_NAME
 @Component
 @RequiredArgsConstructor
 public class MessageConsumer {
-    private final DlxProcessingErrorHandler dlxProcessingErrorHandler = new DlxProcessingErrorHandler();
+    private final DlxProcessingErrorHandler dlxProcessingErrorHandler;
 
     private final RabbitTemplate rabbitTemplate;
 
@@ -43,9 +43,11 @@ public class MessageConsumer {
 
             MessageResultDto messageResultDto = receiveMessageDto.getMessageResultDto();
 
-            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+            dlxProcessingErrorHandler.handleErrorProcessingMessage(message, channel);
 
-            sendResponseToSendServer(messageResultDto);
+//            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+//
+//            sendResponseToSendServer(messageResultDto);
         } catch (IOException e){
             log.warn("Error processing message:" + new String(message.getBody()) + ":" + e.getMessage());
             dlxProcessingErrorHandler.handleErrorProcessingMessage(message, channel);

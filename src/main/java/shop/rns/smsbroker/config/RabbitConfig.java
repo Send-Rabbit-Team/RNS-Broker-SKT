@@ -53,7 +53,6 @@ public class RabbitConfig {
     // Send Server에게 응답 결과 전달하기 위한 큐
     @Bean
     Queue smsReceiveKTQueue() {
-        Map<String, Object> args = new HashMap<>();
         return new Queue(KT_RECEIVE_QUEUE_NAME, true);
     }
 
@@ -72,7 +71,11 @@ public class RabbitConfig {
     // DLX QUEUE
     @Bean
     public Queue smsWaitKTQueue(){
-        return new Queue(KT_WAIT_QUEUE_NAME, true);
+        Map<String, Object> args = new HashMap<>();
+        args.put("x-message-ttl", WAIT_TTL);
+        args.put("x-dead-letter-exchange", SMS_EXCHANGE_NAME);
+        args.put("x-dead-letter-routing-key", KT_WORK_ROUTING_KEY);
+        return new Queue(KT_WAIT_QUEUE_NAME, true, false, false, args);
     }
 
     // DLX Exchange
