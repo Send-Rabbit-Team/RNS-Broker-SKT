@@ -6,10 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import shop.rns.smsbroker.dto.broker.ReceiveMessageDto;
+import shop.rns.smsbroker.dto.message.MessageResultDto;
 
 import java.io.IOException;
 import java.util.Date;
@@ -21,7 +20,6 @@ import static shop.rns.smsbroker.utils.rabbitmq.RabbitUtil.*;
 
 @Log4j2
 @Component
-@Scope("prototype")
 @RequiredArgsConstructor
 public class DlxProcessingErrorHandler {
     private final RabbitTemplate rabbitTemplate;
@@ -42,21 +40,22 @@ public class DlxProcessingErrorHandler {
                 log.warn("[DEAD] Error at " + new Date() + "on retry " + rabbitmqHeader.getFailedRetryCount()
                         + " for message " + message);
 
-                rabbitTemplate.convertAndSend(DEAD_EXCHANGE_NAME, "sms.dead." + brokerName, message);
+                MessageResultDto messageResultDto = receiveMessageDto.getMessageResultDto();
                 channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+                rabbitTemplate.convertAndSend(DEAD_EXCHANGE_NAME, "sms.dead." + brokerName, messageResultDto);
 
                 // 다른 중계사를 다 돌지 않았을 경우, LG 중계사 WAIT로 보내기
             } else if (rabbitmqHeader.getFailedRetryCount() >= maxBrokerRetryCount) {
                 log.warn("[RE-SEND OTHER BROKER] Error at " + new Date() + "on retry " + rabbitmqHeader.getFailedRetryCount()
                         + " for message " + message);
 
-                rabbitTemplate.convertAndSend(DLX_EXCHANGE_NAME, LG_WAIT_ROUTING_KEY, this::increaseDeathCount);
                 channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+                rabbitTemplate.convertAndSend(DLX_EXCHANGE_NAME, LG_WAIT_ROUTING_KEY, message);
             }
 
             // 자신의 WAIT QUEUE로 넣기
             else {
-                log.debug("[RE-QUEUE] Error at " + new Date() + " on retry " + rabbitmqHeader.getFailedRetryCount()
+                log.info("[RE-QUEUE] Error at " + new Date() + " on retry " + rabbitmqHeader.getFailedRetryCount()
                         + " for message " + message);
 
                 channel.basicReject(message.getMessageProperties().getDeliveryTag(), false);
@@ -79,7 +78,7 @@ public class DlxProcessingErrorHandler {
         for (Map<String, Object> x : xDeathHeaders) {
             Optional<Object> count = Optional.ofNullable(x.get("count"));
             int finalIdx = idx;
-            count.ifPresent(c -> xDeathHeaders.get(finalIdx).put("x-death", count));
+            count.ifPresent(c -> xDeathHeaders.get(finalIdx).put("count", (long) c+1));
 
             idx++;
         }
