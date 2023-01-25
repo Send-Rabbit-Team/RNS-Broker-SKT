@@ -53,7 +53,7 @@ public class RabbitmqHeader {
         for(RabbitmqHeaderXDeath xDeath: xDeaths){
             if(xDeath.getExchange().toLowerCase().endsWith(KEY_WORD_QUEUE_WAIT)
             && xDeath.getQueue().toLowerCase().endsWith(KEY_WORD_QUEUE_WAIT))
-               deadCount = xDeath.getCount();
+               deadCount += xDeath.getCount();
         }
         return deadCount;
     }

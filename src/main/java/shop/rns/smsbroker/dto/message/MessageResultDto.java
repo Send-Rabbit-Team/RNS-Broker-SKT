@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class MessageResultDto {
+    private String rMessageResultId;
+
     private long messageId;
 
     private long brokerId;
