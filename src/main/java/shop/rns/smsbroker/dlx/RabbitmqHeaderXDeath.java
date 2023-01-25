@@ -23,6 +23,7 @@ public class RabbitmqHeaderXDeath {
         return queue;
     }
 
+<<<<<<< HEAD
     public String getReason() {
         return reason;
     }
@@ -35,6 +36,8 @@ public class RabbitmqHeaderXDeath {
         return time;
     }
 
+=======
+>>>>>>> 52be93bf182c2cc368e26abb2c19edc51614f499
     public void setCount(int count) {
         this.count = count;
     }
