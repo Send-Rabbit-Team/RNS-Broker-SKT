@@ -31,8 +31,9 @@ public class RabbitConfig {
     @Bean
     public Queue smsWorkSKTQueue(){
         Map<String, Object> args = new HashMap<>();
-        args.put("x-dead-letter-exchange", DLX_EXCHANGE_NAME);
-        args.put("x-dead-letter-routing-key", SKT_WAIT_ROUTING_KEY);
+        args.put("x-dead-letter-exchange", SENDER_EXCHANGE_NAME);
+        args.put("x-dead-letter-routing-key", SKT_SENDER_ROUTING_KEY);
+        args.put("x-message-ttl", WORK_TTL);
         return new Queue(SKT_WORK_QUEUE_NAME, true, false, false, args);
     }
 
@@ -82,7 +83,7 @@ public class RabbitConfig {
     // DLX Exchange
     @Bean
     public DirectExchange dlxSMSExchange() {
-        return new DirectExchange(DLX_EXCHANGE_NAME);
+        return new DirectExchange(WAIT_EXCHANGE_NAME);
     }
 
 

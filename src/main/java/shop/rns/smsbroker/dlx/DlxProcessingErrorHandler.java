@@ -50,7 +50,7 @@ public class DlxProcessingErrorHandler {
                         + " for message " + message);
 
                 channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
-                rabbitTemplate.convertAndSend(DLX_EXCHANGE_NAME, LG_WAIT_ROUTING_KEY, message);
+                rabbitTemplate.convertAndSend(WAIT_EXCHANGE_NAME, LG_WAIT_ROUTING_KEY, message);
             }
 
             // 자신의 WAIT QUEUE로 넣기
