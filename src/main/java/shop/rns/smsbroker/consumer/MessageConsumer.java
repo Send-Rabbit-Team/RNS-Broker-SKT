@@ -41,6 +41,7 @@ public class MessageConsumer {
 
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
             sendResponseToSendServer(messageResultDto);
+
 //            channel.basicReject(message.getMessageProperties().getDeliveryTag(), false);
         } catch (IOException e){
             log.warn("Error processing message:" + new String(message.getBody()) + ":" + e.getMessage());
